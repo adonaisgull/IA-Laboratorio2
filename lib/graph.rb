@@ -79,12 +79,6 @@ class Graph
 		f_in.close
 	end
 
-	def nodes
-		@nodes.each do |node|
-			node.mostrar
-		end
-	end
-
 	def h(from, to)
 		return @heuristic[from][to]
 	end
@@ -96,76 +90,73 @@ class Graph
 	def get_node_by_id(node_id)
 
 		@nodes.each do |node|
-			return node.copy if node.id == node_id
+			return node.clone if node.id == node_id
 		end
 
 		return nil
 	end
 
 	def deep_first_search(initial_node, final_node)
-		
-		analized = []
+
+		generated = 0
+		analized = 0
 		to_be_analized = []
 
-		to_be_analized.push(initial_node)		# añadimos el primero nodo a analizar, que será el inicial u origen
-
-		dfs(final_node,	analized, to_be_analized)		# llamamos al metodo recursivo que buscará el camino
-
-	end
-
-	def dfs(final_node,	analized, to_be_analized)
-
-		current_node = to_be_analized.pop	# sacamos el nodo que toca analizar
-
-		if current_node == nil
-			puts "No se encontro el camino"
+		if initial_node.id == final_node.id
+			puts "El nodo inicial es el nodo final. No se genero un camino"
 			return
 		end
 
-		analized.push(current_node)
+		initial_node.predecessors.push(initial_node.id) 	# añadimos el id de su padre a la lista, que en este caso será el mismo nodo
+		to_be_analized.push(initial_node)
+		generated+=1
 
-		if current_node.id == final_node.id
-			puts "Se encontro el camino"
+		current_node = to_be_analized.pop
 
-			camino = []
-			node = current_node
-			coste = 0
+		while current_node != nil && current_node.id != final_node.id
 
-			camino.push(node.id+1)
+			analized += 1
 
-			while node.father != nil
-				coste += cost(node.father.id, node.id)
-				node = node.father
-				camino.push(node.id+1)
+			current_node.children.reverse.each do |child_id|
+
+				if !current_node.predecessors.include?(child_id)
+					
+					node = get_node_by_id(child_id)							# obtenemos una copia del nodo
+					
+					node.predecessors = current_node.predecessors.clone		 	# añadimos al nodo que va a ser generado la lista de predecesores actualizado
+					node.predecessors.push(current_node.id)
+
+					node.cumulative_cost = current_node.cumulative_cost + cost(current_node.id, node.id)	# le añadimos al cobjeto su costo acumulado
+
+					to_be_analized.push(node)							 	# añade los hijos que no estan en el camino
+					generated += 1
+				end
 			end
-
-			puts camino.reverse
-			puts "Coste: #{coste}"
-
-			return 		# se encontró nodo final
+			current_node = to_be_analized.pop	# sacamos el siguiente nodo de la pila
 		end
 
-		current_node.children.reverse.each do |child_id|
-			if !Node.is_in?(analized, child_id)
-				node = get_node_by_id(child_id)		# obtenemos una copia del nodo
-				node.set_father(current_node)
-				to_be_analized.push(node)	# añade los hijos que no han sido analizados
-			end
+		if current_node != nil	# Falta mejorar la salida. En principio este metodo no mostraria los resultados. IDEA: Devolver un hash con los resultados
+
+			current_node.predecessors.delete_at(0)
+			current_node.predecessors.push(current_node.id)
+			puts "Se encontro el camino entre #{initial_node.id} y #{final_node.id}"
+			puts current_node.predecessors.join("->")
+			puts "Nodos analizados: #{analized}"
+			puts "Nodos generados:  #{generated}"
+			puts "Costo acumulado:  #{current_node.cumulative_cost}"
+		else
+			puts "No se encontro camino desde #{initial_node.id} a #{final_node.id}."
 		end
-
-		dfs(final_node, analized, to_be_analized)
-
 	end
 
-	def bfs
+	def breadth_first_search
 	end
 
 	def a_star
 	end
-
 end
-
 
 grafo = Graph.new
 
+#controlar el numero de los nodos desde el main. O no...
 grafo.deep_first_search( grafo.get_node_by_id(0), grafo.get_node_by_id(13) )

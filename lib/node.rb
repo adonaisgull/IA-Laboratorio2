@@ -3,51 +3,23 @@
 # Class Noder
 #
 
-class Node 
+class Node
+
+	attr_reader :id, :children
+	attr_accessor :predecessors, :cumulative_cost
 
 	@id
 	@label
-	@children	# array de objetos de clase Node
-	@father		# objeto de clase Node que representa al padre que lo generó
+	@children			# array de ids de los hijos del nodo
+	@predecessors		# lista de ids de los predecesores de cada nodo generado
+	@cumulative_cost	# variable que almacena el costo acumulado cuando se genera el nodo
 
-	def initialize(id, children, father=nil)
-		@children = children
+
+	def initialize(id, children, predecessors=Array.new)
 		@id = id
-		@father = father
-	end
-
-	def show
-		puts "ID: #{@id}"
-		print "HIJOS: #{@children} \n"
-		puts "FATHER ID: #{@father.id}"
-	end
-
-	def id
-		return @id
-	end
-
-	def children
-		return @children
-	end
-
-	def father
-		return @father
-	end
-
-	def set_father(father)
-		@father = father
-	end
-
-	def copy
-		return Node.new(@id, @children, @father)
-	end
-
-	def self.is_in?(nodes_array, node_id)
-		nodes_array.each do |node|
-			return true if node.id == node_id
-		end
-
-		return false
+		@children = children
+		@predecessors = predecessors
+		@cumulative_cost = 0
 	end
 end
 
