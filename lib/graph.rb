@@ -96,152 +96,160 @@ class Graph
 		return nil
 	end
 
-	def deep_first_search(initial_node, final_node)
+	def deep_first_search(initial_node_id, final_node_id)
 
 		generated = 0
 		analized = 0
 		to_be_analized = []
 		results = nil
 
-		if initial_node.id == final_node.id
-			puts "El nodo inicial es el nodo final. No se genero un camino"
-			return
-		end
+		if initial_node_id != final_node_id && (1..@nodes_size).member?(initial_node_id) && (1..@nodes_size).member?(final_node_id)
 
-		to_be_analized.push(initial_node)
-		generated+=1
+			initial_node = get_node_by_id(initial_node_id)
+			final_node = get_node_by_id(final_node_id)
 
-		current_node = to_be_analized.pop
+			to_be_analized.push(initial_node)
+			generated+=1
 
-		while current_node != nil && current_node.id != final_node.id
+			current_node = to_be_analized.pop
 
-			analized += 1
+			while current_node != nil && current_node.id != final_node.id
 
-			current_node.children.reverse.each do |child_id|
+				analized += 1
 
-				if !current_node.predecessors.include?(child_id)
-					
-					node = get_node_by_id(child_id)							# obtenemos una copia del nodo
-					
-					node.predecessors = current_node.predecessors.clone		 	# añadimos al nodo que va a ser generado la lista de predecesores actualizado
-					node.predecessors.push(current_node.id)
+				current_node.children.reverse.each do |child_id|
 
-					node.cumulative_cost = current_node.cumulative_cost + cost(current_node.id, node.id)	# le añadimos al cobjeto su costo acumulado
+					if !current_node.predecessors.include?(child_id)
+						
+						node = get_node_by_id(child_id)							# obtenemos una copia del nodo
+						
+						node.predecessors = current_node.predecessors.clone		 	# añadimos al nodo que va a ser generado la lista de predecesores actualizado
+						node.predecessors.push(current_node.id)
 
-					to_be_analized.push(node)							 	# añade los hijos que no estan en el camino
-					generated += 1
+						node.cumulative_cost = current_node.cumulative_cost + cost(current_node.id, node.id)	# le añadimos al cobjeto su costo acumulado
+
+						to_be_analized.push(node)							 	# añade los hijos que no estan en el camino
+						generated += 1
+					end
 				end
+				current_node = to_be_analized.pop	# sacamos el siguiente nodo de la pila
 			end
-			current_node = to_be_analized.pop	# sacamos el siguiente nodo de la pila
-		end
 
-		if current_node != nil	# Falta mejorar la salida. En principio este metodo no mostraria los resultados. IDEA: Devolver un hash con los resultados
-			analized += 1
-			current_node.predecessors.push(current_node.id)
-			
-			results = {}
-			results[:road] = current_node.predecessors
-			results[:cost] = current_node.cumulative_cost
-			results[:generated] = generated
-			results[:analized] = analized
+			if current_node != nil	# Falta mejorar la salida. En principio este metodo no mostraria los resultados. IDEA: Devolver un hash con los resultados
+				analized += 1
+				current_node.predecessors.push(current_node.id)
+				
+				results = {}
+				results[:road] = current_node.predecessors
+				results[:cost] = current_node.cumulative_cost
+				results[:generated] = generated
+				results[:analized] = analized
+			end
 		end
 
 		results
 	end
 
-	def breadth_first_search(initial_node, final_node)
+	def breadth_first_search(initial_node_id, final_node_id)
 
 		generated = 0
 		analized = 0
 		to_be_analized = []
 		results = nil
 
-		if initial_node.id == final_node.id
-			puts "El nodo inicial es el nodo final. No se genero un camino"
-			return
-		end
+		if initial_node_id != final_node_id && (1..@nodes_size).member?(initial_node_id) && (1..@nodes_size).member?(final_node_id)
 
-		to_be_analized.push(initial_node)
-		generated+=1
+			initial_node = get_node_by_id(initial_node_id)
+			final_node = get_node_by_id(final_node_id)
 
-		current_node = to_be_analized.shift		# sacamos el nodo con menor f(n) = g(n) + h(n)
-
-		while current_node != nil && current_node.id != final_node.id
-
-			analized += 1
-
-			current_node.children.each do |child_id|
-				if !current_node.predecessors.include?(child_id)
-					node = get_node_by_id(child_id)							# obtenemos una copia del nodo
-					node.predecessors = current_node.predecessors.clone		 	# añadimos al nodo que va a ser generado la lista de predecesores actualizado
-					node.predecessors.push(current_node.id)
-					node.cumulative_cost = current_node.cumulative_cost + cost(current_node.id, node.id)	# le añadimos al cobjeto su costo acumulado
-					to_be_analized.push(node)							 	# añade los hijos que no estan en el camino
-					generated += 1
-				end
+			if initial_node.id == final_node.id
+				puts "El nodo inicial es el nodo final. No se genero un camino"
+				return
 			end
-			current_node = to_be_analized.shift		# sacamos el siguiente nodo de la cola fifo
-		end
 
-		if current_node != nil	# Falta mejorar la salida. En principio este metodo no mostraria los resultados. IDEA: Devolver un hash con los resultados
-			analized += 1
-			current_node.predecessors.push(current_node.id)
-			
-			results = {}
-			results[:road] = current_node.predecessors
-			results[:cost] = current_node.cumulative_cost
-			results[:generated] = generated
-			results[:analized] = analized
+			to_be_analized.push(initial_node)
+			generated+=1
+
+			current_node = to_be_analized.shift		# sacamos el nodo con menor f(n) = g(n) + h(n)
+
+			while current_node != nil && current_node.id != final_node.id
+
+				analized += 1
+
+				current_node.children.each do |child_id|
+					if !current_node.predecessors.include?(child_id)
+						node = get_node_by_id(child_id)							# obtenemos una copia del nodo
+						node.predecessors = current_node.predecessors.clone		 	# añadimos al nodo que va a ser generado la lista de predecesores actualizado
+						node.predecessors.push(current_node.id)
+						node.cumulative_cost = current_node.cumulative_cost + cost(current_node.id, node.id)	# le añadimos al cobjeto su costo acumulado
+						to_be_analized.push(node)							 	# añade los hijos que no estan en el camino
+						generated += 1
+					end
+				end
+				current_node = to_be_analized.shift		# sacamos el siguiente nodo de la cola fifo
+			end
+
+			if current_node != nil	# Falta mejorar la salida. En principio este metodo no mostraria los resultados. IDEA: Devolver un hash con los resultados
+				analized += 1
+				current_node.predecessors.push(current_node.id)
+				
+				results = {}
+				results[:road] = current_node.predecessors
+				results[:cost] = current_node.cumulative_cost
+				results[:generated] = generated
+				results[:analized] = analized
+			end
 		end
 
 		results
 	end
 
-	def a_star(initial_node, final_node)
+	def a_star(initial_node_id, final_node_id)
 
 		generated = 0
 		analized = 0
 		to_be_analized = NodePriorityQueue.new
 		results = nil
 
-		if initial_node.id == final_node.id
-			puts "El nodo inicial es el nodo final. No se genero un camino"
-			return
-		end
+		if initial_node_id != final_node_id && (1..@nodes_size).member?(initial_node_id) && (1..@nodes_size).member?(final_node_id)
 
-		initial_node.estimated_cost = h(initial_node.id, final_node.id)		# en el primer nodo g=0, no hace falta añadirlo
-		to_be_analized.add(initial_node)
-		generated+=1
+			initial_node = get_node_by_id(initial_node_id)
+			final_node = get_node_by_id(final_node_id)
 
-		current_node = to_be_analized.shift
+			initial_node.estimated_cost = h(initial_node.id, final_node.id)		# en el primer nodo g=0, no hace falta añadirlo
+			to_be_analized.add(initial_node)
+			generated+=1
 
-		while current_node != nil && current_node.id != final_node.id
-			
-			analized += 1
-			
-			current_node.children.each do |child_id|
-				if !current_node.predecessors.include?(child_id)
-					node = get_node_by_id(child_id)							# obtenemos una copia del nodo
-					node.predecessors = current_node.predecessors.clone		 	# añadimos al nodo que va a ser generado la lista de predecesores actualizado
-					node.predecessors.push(current_node.id)
-					node.cumulative_cost = current_node.cumulative_cost + cost(current_node.id, node.id)	# le añadimos al cobjeto su costo acumulado
-					node.estimated_cost = node.cumulative_cost + h(node.id, final_node.id)
-					to_be_analized.add(node)							 	# añade los hijos que no estan en el camino
-					generated += 1
+			current_node = to_be_analized.shift
+
+			while current_node != nil && current_node.id != final_node.id
+				
+				analized += 1
+				
+				current_node.children.each do |child_id|
+					if !current_node.predecessors.include?(child_id)
+						node = get_node_by_id(child_id)							# obtenemos una copia del nodo
+						node.predecessors = current_node.predecessors.clone		 	# añadimos al nodo que va a ser generado la lista de predecesores actualizado
+						node.predecessors.push(current_node.id)
+						node.cumulative_cost = current_node.cumulative_cost + cost(current_node.id, node.id)	# le añadimos al cobjeto su costo acumulado
+						node.estimated_cost = node.cumulative_cost + h(node.id, final_node.id)
+						to_be_analized.add(node)							 	# añade los hijos que no estan en el camino
+						generated += 1
+					end
 				end
+				current_node = to_be_analized.shift		# sacamos el siguiente nodo de la cola fifo
 			end
-			current_node = to_be_analized.shift		# sacamos el siguiente nodo de la cola fifo
-		end
 
-		if current_node != nil	# Falta mejorar la salida. En principio este metodo no mostraria los resultados. IDEA: Devolver un hash con los resultados
-			analized += 1
-			current_node.predecessors.push(current_node.id)
-			
-			results = {}
-			results[:road] = current_node.predecessors
-			results[:cost] = current_node.cumulative_cost
-			results[:generated] = generated
-			results[:analized] = analized
+			if current_node != nil	# Falta mejorar la salida. En principio este metodo no mostraria los resultados. IDEA: Devolver un hash con los resultados
+				analized += 1
+				current_node.predecessors.push(current_node.id)
+				
+				results = {}
+				results[:road] = current_node.predecessors
+				results[:cost] = current_node.cumulative_cost
+				results[:generated] = generated
+				results[:analized] = analized
+			end
 		end
 
 		results
@@ -250,8 +258,7 @@ end
 
 if __FILE__ == $0
 	grafo = Graph.new
-	#controlar el numero de los nodos desde el main. O no...
-	grafo.deep_first_search( grafo.get_node_by_id(1), grafo.get_node_by_id(14) )
-	grafo.breadth_first_search( grafo.get_node_by_id(1), grafo.get_node_by_id(14) )
-	grafo.a_star( grafo.get_node_by_id(1), grafo.get_node_by_id(14) )
+	grafo.deep_first_search(1, 14)
+	grafo.breadth_first_search(1, 14)
+	grafo.a_star(1, 14)
 end
